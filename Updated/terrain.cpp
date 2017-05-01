@@ -35,6 +35,8 @@ float tilt_speed = 0.0;
 float angle = M_PI / 4.0;
 float phi = M_PI / 5.0;
 float radius = 2.0f;
+float x_tex = 0.0;
+float y_tex = 0.0;
 
 GLuint program_handle;
 GLuint vertex_shader_handle;
@@ -49,6 +51,8 @@ GLuint height_map_handle;
 GLuint sl_transform;
 GLuint sl_position;
 GLuint sl_texture_coord;
+GLuint sl_x_tex;
+GLuint sl_y_tex;
 GLuint sl_height;
 GLuint sl_water;
 GLuint sl_grass;
@@ -69,6 +73,7 @@ void controls() {
     cout << "d: tilt down" << endl;
     cout << "r: zoom out" << endl;
     cout << "f: zoom in" << endl;
+    cout << "z: toggle water animation" << endl;
 }
 
 void _error(const string &message) {
@@ -77,13 +82,16 @@ void _error(const string &message) {
 }
 
 template <typename T>
-void clamp(T &value, T minimum, T maximum) {
+bool clamp(T &value, T minimum, T maximum) {
     if (minimum > maximum)
-        return;
+        return false;
     if (value < minimum)
         value = minimum;
     else if (value > maximum)
         value = maximum;
+    else
+        return false;
+    return true;
 }
 
 GLuint load_shader(const string &filename, GLenum type) {
@@ -271,6 +279,8 @@ void get_locations() {
     sl_transform = glGetUniformLocation(program_handle, "transform");
     sl_position = glGetAttribLocation(program_handle, "VertexPosition");
     sl_texture_coord = glGetAttribLocation(program_handle, "TexCoord");
+    sl_x_tex = glGetUniformLocation(program_handle, "tex_x");
+    sl_y_tex = glGetUniformLocation(program_handle, "tex_y");
     sl_height = glGetUniformLocation(program_handle, "height");
     sl_water = glGetUniformLocation(program_handle, "waterTex");
     sl_grass = glGetUniformLocation(program_handle, "grassTex");
@@ -337,9 +347,19 @@ void render_scene() {
         angle += rotation_speed;
         compute_transform = true;
     }
+    
     if (tilt_speed != 0.0f) {
         phi += tilt_speed;
+        if (clamp(phi, 0.0f, (float) M_PI / 2 - 0.01f))
+            tilt_speed = 0;
         compute_transform = true;
+    }
+    
+    if (animate_water) {
+        x_tex += (rand() & 0xf) / ((float) 0xffff);
+        y_tex += (rand() & 0xf) / ((float) 0xffff);
+        if (!compute_transform)
+            glutPostRedisplay();
     }
 
     if (compute_transform) {
@@ -351,6 +371,8 @@ void render_scene() {
     glUseProgram(program_handle);
     glUniformMatrix4fv(sl_transform, 1, GL_FALSE, &camera[0][0]);
     glUniform1f(sl_height, height_map);
+    glUniform1f(sl_x_tex, x_tex);
+    glUniform1f(sl_y_tex, y_tex);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, water_handle);
@@ -387,6 +409,7 @@ void render_scene() {
 
 int main(int argc, char **argv) {
     glutInit(&argc, argv);
+    srand(time(NULL));
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
     glutInitWindowSize(600, 600);
     glutCreateWindow("Terrain");

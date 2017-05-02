@@ -12,4 +12,4 @@ OpenGL Assignment
  `sudo apt-get install freeglut3-dev libglew-dev libglm-dev libfreeimage-dev`
 
 ## Compile:
-g++ -std=c++11 mainGL.cpp -o main -lGL -lGLU -lglut -lGLEW -lfreeimage
+g++ -std=c++11 `filename`.cpp -lGL -lGLU -lglut -lGLEW -lfreeimage

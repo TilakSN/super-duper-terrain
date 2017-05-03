@@ -16,9 +16,9 @@
 #define BUFFER_OFFSET(x) (void *)(x)
 using namespace std;
 
-const float fov = 70.0f;
+const float fov = M_PI / 5;
 const float z_near = 0.1f;
-const float z_far = 10.0f;
+const float z_far = 100.0f;
 
 const int mesh_size = 256;
 
@@ -34,7 +34,7 @@ float rotation_speed = 0.0;
 float tilt_speed = 0.0;
 float angle = M_PI / 4.0;
 float phi = M_PI / 5.0;
-float radius = 2.0f;
+float radius = 4.0f;
 float x_tex = 0.0;
 float y_tex = 0.0;
 

@@ -16,7 +16,7 @@
 #define BUFFER_OFFSET(x) (void *)(x)
 using namespace std;
 
-const float fov = 70.0f;
+const float fov = M_PI / 5;
 const float z_near = 0.1f;
 const float z_far = 10.0f;
 
